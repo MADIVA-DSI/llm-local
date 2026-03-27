@@ -2,35 +2,6 @@ import pdfplumber
 import json
 import re
 
-# ── Step 1: Build class → method mapping from pages 2–3 ──────────────────────
-#
-# Structure on these pages:
-#   Row 1 (merged header): "Analyte class (number of metabolites)" | "Analytical method"
-#   Row 2 (merged group):  "Small molecules (327)"                 |
-#   Row 3 (subclass):      "Alkaloids (2)"                         | "LC-MS/MS"
-#   ...
-#   Row N (merged group):  "Lipids (906)"                          |
-#   Row N+1 (subclass):    "Acylcarnitines (40)"                   | "FIA-MS/MS"
-
-METHOD_PAGES = [1, 2]   # 0-indexed: PDF pages 2–3
-
-method_map = {}         # e.g. {"Alkaloids": "LC-MS/MS", "Acylcarnitines": "FIA-MS/MS"}
-current_method = None
-
-with pdfplumber.open("data/meta-datasheet.pdf") as pdf:
-
-# ── Step 2: Extract metabolites from detail pages (pages 4–19) ───────────────
-#
-# Structure:
-#   Header row:  single cell spanning all columns, e.g. "Alkaloids (2)"
-#                OR a continuation header, e.g. "Amino acid-related (77) continued"
-#   Data rows:   4 columns: abbrev1 | full_name1 | abbrev2 | full_name2
-#                Some data rows have only 2 populated columns (last row of a class)
-
-DETAIL_PAGES = list(range(3, 19))   # 0-indexed: PDF pages 4–19
-
-metabolites = []
-current_class = None
 
 def is_class_header(row):
     """
@@ -54,7 +25,21 @@ def clean_class_name(raw):
     name = re.sub(r'\s*\(\d+\)', '', name).strip()
     return name
 
-
+# ── Step 1: Build class → method mapping from pages 2–3 ──────────────────────
+#
+# Structure on these pages:
+#   Row 1 (merged header): "Analyte class (number of metabolites)" | "Analytical method"
+#   Row 2 (merged group):  "Small molecules (327)"                 |
+#   Row 3 (subclass):      "Alkaloids (2)"                         | "LC-MS/MS"
+#   ...
+#   Row N (merged group):  "Lipids (906)"                          |
+#   Row N+1 (subclass):    "Acylcarnitines (40)"                   | "FIA-MS/MS"
+#
+# Structure:
+#   Header row:  single cell spanning all columns, e.g. "Alkaloids (2)"
+#                OR a continuation header, e.g. "Amino acid-related (77) continued"
+#   Data rows:   4 columns: abbrev1 | full_name1 | abbrev2 | full_name2
+#                Some data rows have only 2 populated columns (last row of a class)
 def get_class_details(pdf):
   for page_idx in METHOD_PAGES:
       page = pdf.pages[page_idx]
@@ -86,7 +71,6 @@ def get_class_details(pdf):
                       # Strip the count to get a clean class name key
                       clean = re.sub(r'\s*\(\d+\)', '', cell).strip()
                       method_map[clean] = current_method
-
                       print(f"Mapped {len(method_map)} classes to methods")
 
 def get_details(pdf):
@@ -99,10 +83,8 @@ def get_details(pdf):
                   raw_name = [c for c in row if c and c.strip()][0].strip()
                   current_class = clean_class_name(raw_name)
                   continue
-
               if current_class is None:
                   continue
-
               # Pad row to at least 4 elements
               padded = list(row) + [None] * 4
               a1, n1, a2, n2 = (
@@ -111,9 +93,7 @@ def get_details(pdf):
                   (padded[2] or "").strip(),
                   (padded[3] or "").strip(),
               )
-
               method = method_map.get(current_class, "Unknown")
-
               if a1 and n1:
                   metabolites.append({
                       "abbreviation": a1,
@@ -129,11 +109,19 @@ def get_details(pdf):
                       "method":       method,
                   })
 
-print(f"Extracted {len(metabolites)} metabolites")
-# Expected: ~1,233
-                      
 
-with pdfplumber.open("data/meta-datasheet.pdf") as pdf:
+
+METHOD_PAGES = [1, 2]   # 0-indexed: PDF pages 2–3
+method_map = {}         # e.g. {"Alkaloids": "LC-MS/MS", "Acylcarnitines": "FIA-MS/MS"}
+current_method = None
+
+DETAIL_PAGES = list(range(3, 19))   # 0-indexed: PDF pages 4–19
+
+metabolites = []
+current_class = None
+
+
+with pdfplumber.open("data/metabolites.pdf") as pdf:
     get_class_details(pdf)
     get_details(pdf)
 
