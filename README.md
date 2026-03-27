@@ -83,7 +83,7 @@ The output goes into the `data` directory and is stored in a sqlite database. If
 
 The third step is do querying. In a real scenario you probably would run many queries using the same database
 
-'''
+```
 python3 26-query-rag.py
 ```
 
