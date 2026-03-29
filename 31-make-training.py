@@ -67,5 +67,5 @@ random.shuffle(dataset)
 print(f"Total training examples: {len(dataset)}")
 # 20 originals + 20*4 paraphrases = 100 examples
 
-with open("finetune_dataset.json", "w") as f:
+with open("data/finetune_dataset.json", "w") as f:
     json.dump(dataset, f, indent=2)

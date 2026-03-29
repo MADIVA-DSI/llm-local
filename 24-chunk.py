@@ -2,9 +2,6 @@ import json
 import chromadb
 import ollama
 
-
-
-
 def build_chunks(metabolite_records):
     chunks = []
     # Group by class

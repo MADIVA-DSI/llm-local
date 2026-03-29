@@ -1,0 +1,26 @@
+[project]
+name = "llm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "unsloth==2025.3.19",
+    "trl==0.8.6",
+    "unsloth_zoo==2025.4.4",
+    "transformers==4.47.1",
+    "datasets>=2.16.0",
+    "bitsandbytes>=0.43.0",
+    "peft>=0.10.0",
+    "rich",
+    "torch",
+    "sentencepiece"
+]
+
+[tool.uv]
+environments = ["sys_platform == 'linux' and python_full_version >= '3.12'"]
+constraint-dependencies = [
+    "unsloth-zoo==2025.4.4",
+]
+

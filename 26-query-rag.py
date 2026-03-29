@@ -4,7 +4,9 @@ import chromadb
 import sys
 import os.path
 
-model=sys.argv[1] if len(sys.argv)==2  else "llama3:70b"
+# Choose a sensible model
+my_model=sys.argv[1] if len(sys.argv)==2  else "llama3:70b"
+# run like this: python3 26-query-rag.py llama3.2:1b
 
 queries="""
 Are there any concerns I should have about the panel in terms of coverage?//
@@ -32,11 +34,11 @@ def query_panel(collection, question):
     query_embedding = embed(question)
     results = collection.query(
         query_embeddings=[query_embedding],
-        n_results=5
+        n_results=5  # prob to big for example
     )
     context = "\n".join(results["documents"][0])
     response = ollama.chat(
-        model="llama3:70b",
+        model=my_model,
         messages=[{
             "role": "user",
             "content": f"""You are a metabolomics expert.
