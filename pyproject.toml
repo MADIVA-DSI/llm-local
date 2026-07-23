@@ -9,13 +9,13 @@ dependencies = [
     "unsloth==2025.3.19",
     "trl==0.8.6",
     "unsloth_zoo==2025.4.4",
-    "transformers==4.47.1",
+    "transformers>=4.56,<5",
     "datasets>=2.16.0",
     "bitsandbytes>=0.43.0",
     "peft>=0.10.0",
     "rich",
     "torch",
-    "sentencepiece"
+    "sentencepiece",
 ]
 
 [tool.uv]
